@@ -74,7 +74,6 @@ app.post('/login', async (req, res, next) => {
             throw { name: 'Login Input Error' };
         }
 
-        // Cari user
         const user = await User.findOne({ where: { email } });
 
         if (!user) {

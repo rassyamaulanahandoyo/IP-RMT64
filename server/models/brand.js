@@ -1,21 +1,35 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
-  class Brand extends Model {
-    static associate(models) {
+  class Brand extends Model {}
+  Brand.init(
+    {
+      brand: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      type: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      price: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      coverUrl: {
+        type: DataTypes.STRING,
+        allowNull: false
+      }
+    },
+    {
+      sequelize,
+      modelName: 'Brand'
     }
-  }
-  Brand.init({
-    brand: DataTypes.STRING,
-    type: DataTypes.STRING,
-    price: DataTypes.INTEGER,
-    description: DataTypes.TEXT,
-    coverUrl: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Brand',
-  });
+  );
   return Brand;
 };

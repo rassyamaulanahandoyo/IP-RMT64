@@ -14,8 +14,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post('/brands', async (req, res) => {
     try {
-        const { name, description } = req.body;
-        const newBrand = await Brand.create({ name, description });
+        const { brand, type, price, description, coverUrl } = req.body;
+        const newBrand = await Brand.create({ brand, type, price, description, coverUrl });
         res.status(201).json(newBrand);
     } catch (err) {
         res.status(400).json({ error: err.message });

@@ -5,6 +5,9 @@ function errorHandler(err, req, res, next) {
     if (err.name === "Login Error") {
         status = 401;
         message = "Invalid email/password";
+    } else if (err.name === "Login Input Error") {
+        status = 400;
+        message = "Email/password is required";
     } else if (err.name === "Unauthorized") {
         status = 401;
         message = "Please login first";
@@ -14,9 +17,6 @@ function errorHandler(err, req, res, next) {
     } else if (err.name === "Unauthenticated") {
         status = 401;
         message = "Invalid token";
-    } else if (err.name === "Login Input Error") {
-        status = 400;
-        message = "Email/password is required";
     } else if (
         err.name === "SequelizeValidationError" ||
         err.name === "SequelizeUniqueConstraintError"
@@ -27,5 +27,3 @@ function errorHandler(err, req, res, next) {
 
     res.status(status).json({ message });
 }
-
-module.exports = errorHandler;

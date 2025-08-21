@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-export default function BrandCard({ brand, onDetail }) {
+export default function BrandCard({ brand, onDetail, onGenerateSummary, summary, loading }) {
   const navigate = useNavigate();
 
   const handleAddToCart = (item) => {
@@ -16,7 +17,6 @@ export default function BrandCard({ brand, onDetail }) {
     localStorage.setItem("cart", JSON.stringify(existingCart));
 
     window.dispatchEvent(new CustomEvent("cartUpdated"));
-
     navigate("/cart");
   };
 
@@ -69,38 +69,92 @@ export default function BrandCard({ brand, onDetail }) {
         }}
       >
         <div>
-          <h2 style={{
-            margin: "0 0 4px",
-            fontSize: "18px",
-            fontWeight: "bold",
-            color: "#111827",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            minHeight: "44px",
-          }}>{brand.brand}</h2>
+          <h2
+            style={{
+              margin: "0 0 4px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              color: "#111827",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              minHeight: "44px",
+            }}
+          >
+            {brand.brand}
+          </h2>
 
-          <p style={{ fontSize: "13px", color: "#6b7280", margin: "0 0 8px", fontStyle: "italic" }}>
+          <p
+            style={{
+              fontSize: "13px",
+              color: "#6b7280",
+              margin: "0 0 8px",
+              fontStyle: "italic",
+            }}
+          >
             {brand.type || "Tipe tidak tersedia"}
           </p>
 
-          <p style={{
-            fontSize: "14px",
-            color: "#4b5563",
-            marginBottom: "10px",
-            display: "-webkit-box",
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            minHeight: "60px",
-          }}>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#4b5563",
+              marginBottom: "10px",
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              minHeight: "60px",
+            }}
+          >
             {brand.description || "Deskripsi produk belum tersedia."}
           </p>
 
-          <p style={{ fontWeight: "bold", fontSize: "16px", color: "#1f2937", margin: 0 }}>
+          {summary ? (
+            <p
+              style={{
+                fontStyle: "italic",
+                fontSize: "13px",
+                color: "#374151",
+                marginBottom: "10px",
+                backgroundColor: "#f9fafb",
+                padding: "8px",
+                borderRadius: "6px",
+              }}
+            >
+              {summary}
+            </p>
+          ) : (
+            <button
+              style={{
+                marginBottom: "10px",
+                padding: "6px 10px",
+                backgroundColor: "#0a1b3eff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                fontSize: "13px",
+                cursor: "pointer",
+                opacity: loading ? 0.6 : 1,
+              }}
+              onClick={onGenerateSummary}
+              disabled={loading}
+            >
+              {loading ? "Menghasilkan Ringkasan..." : "Generate AI Summary"}
+            </button>
+          )}
+
+          <p
+            style={{
+              fontWeight: "bold",
+              fontSize: "16px",
+              color: "#1f2937",
+              margin: 0,
+            }}
+          >
             Rp {brand.price?.toLocaleString("id-ID")}
           </p>
         </div>

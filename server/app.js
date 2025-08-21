@@ -7,9 +7,11 @@ const { Brand, User } = require('./models');
 const { comparePassword } = require('./helpers/bcrypts');
 const { generateToken } = require('./helpers/jwt');
 const midtransClient = require('midtrans-client');
+const aiRouter = require('./routes/ai');
 
 const app = express();
 
+app.use('/ai', aiRouter);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

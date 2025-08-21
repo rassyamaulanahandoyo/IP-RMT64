@@ -1,14 +1,16 @@
 'use strict';
 
+require('dotenv').config();
+const cors = require('cors');
 const express = require('express');
 const { Brand, User } = require('./models');
 const { comparePassword } = require('./helpers/bcrypts');
 const { generateToken } = require('./helpers/jwt');
-const cloudinary = require('./helpers/cloudinary');
-const { Op } = require('sequelize');
+const midtransClient = require('midtrans-client');
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -45,8 +47,8 @@ app.get('/brands/:id', async (req, res) => {
 app.put('/brands/:id', async (req, res) => {
     try {
         const id = +req.params.id;
-        const { name, description } = req.body;
-        const [updated] = await Brand.update({ name, description }, { where: { id } });
+        const { brand, type, price, description, coverUrl } = req.body;
+        const [updated] = await Brand.update({ brand, type, price, description, coverUrl }, { where: { id } });
         if (!updated) return res.status(404).json({ error: 'Brand not found' });
         const updatedBrand = await Brand.findByPk(id);
         res.status(200).json(updatedBrand);
@@ -71,72 +73,105 @@ app.post('/login', async (req, res, next) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            throw { name: 'Login Input Error' };
+            return res.status(400).json({ message: 'Email dan Password wajib diisi' });
         }
 
         const user = await User.findOne({ where: { email } });
-
-        if (!user) {
-            throw { name: 'Login Error' };
+        if (!user || !comparePassword(password, user.password)) {
+            return res.status(401).json({ message: 'Email atau Password salah' });
         }
 
-        const isPasswordValid = comparePassword(password, user.password);
-        if (!isPasswordValid) {
-            throw { name: 'Login Error' };
-        }
-
-        const access_token = generateToken({
-            id: user.id,
-            email: user.email,
-            role: user.role
-        });
+        const access_token = generateToken({ id: user.id, email: user.email, role: user.role });
 
         res.status(200).json({
             access_token,
             email: user.email,
             role: user.role
         });
-
     } catch (err) {
         next(err);
     }
 });
 
-app.post('/register', async (req, res, next) => {
+app.post('/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email) return res.status(400).json({ message: 'Email wajib diisi' });
+    if (!password) return res.status(400).json({ message: 'Password wajib diisi' });
+
+    const newUser = await User.create({ email, password, role: 'staff' });
+
+    res.status(201).json({
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role
+    });
+  } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ message: 'Email sudah terdaftar' });
+    } else if (err.name === 'SequelizeValidationError') {
+      return res.status(400).json({ message: err.errors[0].message });
+    } else {
+      console.error(err);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+});
+
+const snap = new midtransClient.Snap({
+    isProduction: false,
+    serverKey: process.env.MIDTRANS_SERVER_KEY,
+});
+
+app.post('/checkout', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { items, totalPrice, customer } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Email is required' });
+        if (!items || items.length === 0) {
+            return res.status(400).json({ message: "Keranjang kosong!" });
         }
 
-        if (!password) {
-            return res.status(400).json({ message: 'Password is required' });
-        }
+        const parameter = {
+            transaction_details: {
+                order_id: "ORDER-" + Math.floor(Math.random() * 999999),
+                gross_amount: totalPrice,
+            },
+            customer_details: {
+                first_name: customer?.name || "Guest",
+                email: customer?.email || "guest@example.com",
+            },
+            item_details: items.map(item => ({
+                id: item.id,
+                price: item.price,
+                quantity: item.quantity,
+                name: item.name,
+            })),
+        };
 
-        const newUser = await User.create({
-            email,
-            password,
-            role: 'staff'
-        });
+        const transaction = await snap.createTransaction(parameter);
 
-        res.status(201).json({
-            id: newUser.id,
-            email: newUser.email,
-            role: newUser.role
-        });
-        app.use((err, req, res, next) => {
-            console.error(err);
-            res.status(500).json({ error: 'Internal Server Error' });
+        res.status(200).json({
+            token: transaction.token,
+            redirect_url: transaction.redirect_url,
         });
     } catch (err) {
-        next(err);
+        console.error("Checkout error:", err);
+        res.status(500).json({
+            message: "Checkout gagal",
+            error: err.message,
+        });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+app.use((err, req, res, next) => {
+    console.error("Internal error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+});
+
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
 
 module.exports = app;

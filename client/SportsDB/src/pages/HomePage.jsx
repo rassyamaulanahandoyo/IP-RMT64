@@ -4,20 +4,43 @@ import api from "../utils/api";
 import BrandCard from "../components/BrandCard";
 
 export default function HomePage() {
-  const [brands, setBrands] = useState([]);
-  const navigate = useNavigate();
+    const [items, setItems] = useState([]);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    api.get("/brands")
-      .then(res => setBrands(res.data))
-      .catch(err => console.error(err));
-  }, []);
+    useEffect(() => {
+        api.get("/brands")
+            .then((res) => setItems(res.data || []))
+            .catch(console.error);
+    }, []);
 
-  return (
-    <div className="container mx-auto p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-      {brands.map(b => (
-        <BrandCard key={b.id} brand={b} onDetail={(id) => navigate(`/brands/${id}`)} />
-      ))}
-    </div>
-  );
+    return (
+        <div style={{ padding: "20px" }}>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    margin: "18px 0"
+                }}
+            >
+                <h3 style={{ margin: 0 }}>Welcome Home🎶</h3>
+            </div>
+
+            <div
+                style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                    gap: "20px"
+                }}
+            >
+                {items.map((b, idx) => (
+                    <BrandCard
+                        key={b.id || idx}
+                        brand={b}
+                        onDetail={(id) => navigate(`/brands/${id}`)}
+                    />
+                ))}
+            </div>
+        </div>
+    );
 }

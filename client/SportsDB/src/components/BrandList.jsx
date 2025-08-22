@@ -1,29 +1,46 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import BrandCard from "../components/BrandCard";
-import { useEffect, useState } from "react";
 
 export default function BrandList() {
   const [brands, setBrands] = useState([]);
+  const [summaries, setSummaries] = useState({});
+  const [loadingId, setLoadingId] = useState(null);
   const [cartCount, setCartCount] = useState(
     JSON.parse(localStorage.getItem("cart"))?.length || 0
   );
 
   useEffect(() => {
     fetch("http://localhost:3000/brands")
-      .then((res) => res.json())
-      .then((data) => setBrands(data))
-      .catch((err) => console.error(err));
+      .then(res => res.json())
+      .then(data => setBrands(data))
+      .catch(err => console.error(err));
   }, []);
 
-  const handleAddToCart = (brand) => {
+  const handleGenerateSummary = async (brandId, description) => {
+    setLoadingId(brandId);
     try {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const response = await axios.post("http://localhost:3000/ai/summary", {
+        text: description,
+      });
+      setSummaries(prev => ({ ...prev, [brandId]: response.data.summary }));
+    } catch (err) {
+      console.error("AI summary error:", err.response?.data || err.message);
+      alert("Gagal generate summary AI");
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
-      const exist = cart.find((item) => item.id === brand.id);
-      if (exist) {
-        alert("Produk sudah ada di keranjang!");
-        return;
-      }
+  const handleDetail = (id) => window.location.href = `/brands/${id}`;
 
+  const handleAddToCart = (brand) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const index = cart.findIndex(i => i.id === brand.id);
+
+    if (index > -1) {
+      cart[index].quantity = (cart[index].quantity || 1) + 1;
+    } else {
       cart.push({
         id: brand.id,
         name: brand.brand || brand.name,
@@ -31,33 +48,19 @@ export default function BrandList() {
         price: brand.price || 0,
         description: brand.description || "",
         imgUrl: brand.imgUrl || brand.coverUrl,
+        quantity: 1
       });
-
-      localStorage.setItem("cart", JSON.stringify(cart));
-
-      setCartCount(cart.length);
-
-      alert("Produk berhasil ditambahkan ke keranjang!");
-    } catch (error) {
-      console.error("Gagal menambahkan produk:", error);
-      alert("Terjadi kesalahan saat menambahkan produk.");
     }
-  };
 
-  const handleDetail = (id) => {
-    window.location.href = `/brands/${id}`;
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setCartCount(cart.length);
+    window.dispatchEvent(new CustomEvent("cartUpdated"));
+    alert("Produk berhasil ditambahkan ke keranjang!");
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h2>Daftar Produk</h2>
         <button
           onClick={() => (window.location.href = "/cart")}
@@ -93,17 +96,14 @@ export default function BrandList() {
         </button>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: "20px",
-        }}
-      >
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: "20px" }}>
         {brands.map((brand) => (
           <BrandCard
             key={brand.id}
             brand={brand}
+            summary={summaries[brand.id]}
+            loading={loadingId === brand.id}
+            onGenerateSummary={() => handleGenerateSummary(brand.id, brand.description)}
             onDetail={handleDetail}
             onAddToCart={handleAddToCart}
           />

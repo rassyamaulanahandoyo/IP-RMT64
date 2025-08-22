@@ -4,7 +4,9 @@ const express = require('express');
 const OpenAI = require('openai');
 const router = express.Router();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY 
+    , baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+});
 
 router.post('/summary', async function (req, res) {
   const { text } = req.body;
@@ -12,7 +14,7 @@ router.post('/summary', async function (req, res) {
 
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+    model: "gemini-2.0-flash",
       messages: [
         { role: 'system', content: 'Buat ringkasan deskripsi brand ini.' },
         { role: 'user', content: text },

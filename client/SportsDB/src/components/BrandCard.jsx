@@ -1,53 +1,38 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
-export default function BrandCard({ brand, onDetail, onGenerateSummary, summary, loading }) {
+export default function BrandCard({ brand, summary, loading, onDetail, onGenerateSummary }) {
   const navigate = useNavigate();
 
   const handleAddToCart = (item) => {
-    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const index = cart.findIndex(i => i.id === item.id);
 
-    const index = existingCart.findIndex((i) => i.id === item.id);
     if (index > -1) {
-      existingCart[index].quantity = (existingCart[index].quantity || 1) + 1;
+      cart[index].quantity = (cart[index].quantity || 1) + 1;
     } else {
-      existingCart.push({ ...item, quantity: 1 });
+      cart.push({ ...item, quantity: 1 });
     }
 
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-
+    localStorage.setItem("cart", JSON.stringify(cart));
     window.dispatchEvent(new CustomEvent("cartUpdated"));
     navigate("/cart");
   };
 
-  const imageSource =
-    brand.coverUrl ||
-    brand.imgUrl ||
-    "https://via.placeholder.com/400x250?text=No+Image";
+  const imageSource = brand.coverUrl || brand.imgUrl || "https://via.placeholder.com/400x250?text=No+Image";
 
   return (
-    <div
-      style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: "12px",
-        overflow: "hidden",
-        backgroundColor: "#fff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-        display: "flex",
-        flexDirection: "column",
-        transition: "transform 0.25s ease, box-shadow 0.25s ease",
-        cursor: "pointer",
-        height: "100%",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-6px)";
-        e.currentTarget.style.boxShadow = "0 12px 24px rgba(0,0,0,0.18)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)";
-      }}
-    >
+    <div style={{
+      border: "1px solid #e5e7eb",
+      borderRadius: "12px",
+      overflow: "hidden",
+      backgroundColor: "#fff",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+      display: "flex",
+      flexDirection: "column",
+      transition: "transform 0.25s ease, box-shadow 0.25s ease",
+      cursor: "pointer",
+      height: "100%",
+    }}>
       <img
         src={imageSource}
         alt={brand.brand}
@@ -59,72 +44,47 @@ export default function BrandCard({ brand, onDetail, onGenerateSummary, summary,
         }}
       />
 
-      <div
-        style={{
-          padding: "16px",
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-        }}
-      >
+      <div style={{ padding: "16px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
         <div>
-          <h2
-            style={{
-              margin: "0 0 4px",
-              fontSize: "18px",
-              fontWeight: "bold",
-              color: "#111827",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              minHeight: "44px",
-            }}
-          >
-            {brand.brand}
-          </h2>
+          <h2 style={{
+            margin: "0 0 4px",
+            fontSize: "18px",
+            fontWeight: "bold",
+            color: "#111827",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            minHeight: "44px",
+          }}>{brand.brand}</h2>
 
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#6b7280",
-              margin: "0 0 8px",
-              fontStyle: "italic",
-            }}
-          >
+          <p style={{ fontSize: "13px", color: "#6b7280", margin: "0 0 8px", fontStyle: "italic" }}>
             {brand.type || "Tipe tidak tersedia"}
           </p>
 
-          <p
-            style={{
-              fontSize: "14px",
-              color: "#4b5563",
-              marginBottom: "10px",
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              minHeight: "60px",
-            }}
-          >
-            {brand.description || "Deskripsi produk belum tersedia."}
-          </p>
+          <p style={{
+            fontSize: "14px",
+            color: "#4b5563",
+            marginBottom: "10px",
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            minHeight: "60px",
+          }}>{brand.description || "Deskripsi produk belum tersedia."}</p>
 
           {summary ? (
-            <p
-              style={{
-                fontStyle: "italic",
-                fontSize: "13px",
-                color: "#374151",
-                marginBottom: "10px",
-                backgroundColor: "#f9fafb",
-                padding: "8px",
-                borderRadius: "6px",
-              }}
-            >
+            <p style={{
+              fontStyle: "italic",
+              fontSize: "13px",
+              color: "#374151",
+              marginBottom: "10px",
+              backgroundColor: "#f9fafb",
+              padding: "8px",
+              borderRadius: "6px",
+            }}>
               {summary}
             </p>
           ) : (
@@ -132,7 +92,7 @@ export default function BrandCard({ brand, onDetail, onGenerateSummary, summary,
               style={{
                 marginBottom: "10px",
                 padding: "6px 10px",
-                backgroundColor: "#0a1b3eff",
+                backgroundColor: "#0f2a65ff",
                 color: "#fff",
                 border: "none",
                 borderRadius: "6px",
@@ -147,14 +107,7 @@ export default function BrandCard({ brand, onDetail, onGenerateSummary, summary,
             </button>
           )}
 
-          <p
-            style={{
-              fontWeight: "bold",
-              fontSize: "16px",
-              color: "#1f2937",
-              margin: 0,
-            }}
-          >
+          <p style={{ fontWeight: "bold", fontSize: "16px", color: "#1f2937", margin: 0 }}>
             Rp {brand.price?.toLocaleString("id-ID")}
           </p>
         </div>

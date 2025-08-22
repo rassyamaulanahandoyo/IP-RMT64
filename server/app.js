@@ -8,13 +8,15 @@ const { comparePassword } = require('./helpers/bcrypts');
 const { generateToken } = require('./helpers/jwt');
 const midtransClient = require('midtrans-client');
 const aiRouter = require('./routes/ai');
+const { OAuth2Client } = require('google-auth-library')
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
 
-app.use('/ai', aiRouter);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/ai', aiRouter);
 
 app.post('/brands', async (req, res) => {
     try {
@@ -95,30 +97,57 @@ app.post('/login', async (req, res, next) => {
     }
 });
 
-app.post('/register', async (req, res) => {
-  try {
-    const { email, password } = req.body;
+app.post('/google-login', async (req, res) => {
+    try {
+        const { tokenId } = req.body;
 
-    if (!email) return res.status(400).json({ message: 'Email wajib diisi' });
-    if (!password) return res.status(400).json({ message: 'Password wajib diisi' });
+        const ticket = await client.verifyIdToken({
+            idToken: tokenId,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
 
-    const newUser = await User.create({ email, password, role: 'staff' });
+        const payload = ticket.getPayload();
+        const { email, name } = payload;
 
-    res.status(201).json({
-      id: newUser.id,
-      email: newUser.email,
-      role: newUser.role
-    });
-  } catch (err) {
-    if (err.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({ message: 'Email sudah terdaftar' });
-    } else if (err.name === 'SequelizeValidationError') {
-      return res.status(400).json({ message: err.errors[0].message });
-    } else {
-      console.error(err);
-      return res.status(500).json({ message: 'Internal Server Error' });
+        let user = await User.findOne({ where: { email } });
+        if (!user) {
+            user = await User.create({ email, password: "google_auth", role: "staff" });
+        }
+
+        const access_token = generateToken({ id: user.id, email: user.email, role: user.role });
+
+        res.status(200).json({ access_token, email: user.email, role: user.role });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Login dengan Google gagal" });
     }
-  }
+});
+
+
+app.post('/register', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email) return res.status(400).json({ message: 'Email wajib diisi' });
+        if (!password) return res.status(400).json({ message: 'Password wajib diisi' });
+
+        const newUser = await User.create({ email, password, role: 'staff' });
+
+        res.status(201).json({
+            id: newUser.id,
+            email: newUser.email,
+            role: newUser.role
+        });
+    } catch (err) {
+        if (err.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({ message: 'Email sudah terdaftar' });
+        } else if (err.name === 'SequelizeValidationError') {
+            return res.status(400).json({ message: err.errors[0].message });
+        } else {
+            console.error(err);
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
 });
 
 const snap = new midtransClient.Snap({

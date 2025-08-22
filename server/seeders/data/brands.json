@@ -1,0 +1,66 @@
+[
+    {
+        "id": 1,
+        "brand": "Adidas",
+        "type": "Samba OG white",
+        "price": 2500000,
+        "description": "The classic look a feel of the authentic Samba.",
+        "coverUrl": "https://dynamic.zacdn.com/gC27jEHiA4I47sceRDuBhByb_eM=/0x770/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/adidas-4130-4983974-2.jpg"
+    },
+    {
+        "id": 2,
+        "brand": "Adidas",
+        "type": "Runfalcon 3",
+        "price": 1800000,
+        "description": "Cushioned running shoes made in part with recycled materials.",
+        "coverUrl": "https://dynamic.zacdn.com/A7TXP86efOQ1FjtyBDD41mJu7ds=/0x770/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/adidas-2493-5918414-2.jpg"
+    },
+    {
+        "id": 3,
+        "brand": "Nike",
+        "type": "Winflo 11 Road Running",
+        "price": 1500000,
+        "description": "A balanced ride to help kickstart your run, the Winflo 11 can help you hit a rhythm that reels in the miles, meters and markers that matter.",
+        "coverUrl": "https://dynamic.zacdn.com/PWkYTUxuLx2raEtzFEgaKuQ6fS0=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/nike-0766-9062344-1.jpg"
+    },
+    {
+        "id": 4,
+        "brand": "Nike",
+        "type": "Structure 25 Women's Road Running",
+        "price": 1250000,
+        "description": "The supportive cushioning provides steadiness for everyday runs.",
+        "coverUrl": "https://dynamic.zacdn.com/Sf1QeGiRF20sw5vIVdC1cGZ87_A=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/nike-6175-1383764-1.jpg"
+    },
+    {
+        "id": 5,
+        "brand": "Puma",
+        "type": "PUMA Speedcat OG Sneakers",
+        "price": 1300000,
+        "description": "The PUMA Speedcat has been an icon of racing culture and street style for decades.",
+        "coverUrl": "https://dynamic.zacdn.com/a9MMhdmDfqReaC99En5kI5-xTnM=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/puma-0697-6891405-2.jpg"
+    },
+    {
+        "id": 6,
+        "brand": "Puma",
+        "type": "PUMA Speedcat Suede Ballet Shoes",
+        "price": 1200000,
+        "description": "Rewrite the classics with Speedcat Ballet, a new iteration of the PUMA Speedcat.",
+        "coverUrl": "https://dynamic.zacdn.com/ngIRh3s632JcO3pxdf7qwgqy4FQ=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/puma-0755-4324505-2.jpg"
+    },
+    {
+        "id": 7,
+        "brand": "Gucci",
+        "type": " GUCCI GG INTERLOCKING MONOGRAM BEIGE BROWN LOAFER",
+        "price": 8900000,
+        "description": "This Item is Brand New & 100% Original.",
+        "coverUrl": "https://dynamic.zacdn.com/5t1Xk9UTO984MfZ7AeIjHmCln_I=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/gucci-5017-0150005-1.jpg"
+    },
+    {
+        "id": 8,
+        "brand": "Gucci",
+        "type": "GUCCI GG INTERLOCKING MONOGRAM GREY BLACK LOAFER",
+        "price": 9800000,
+        "description": "This Item is Brand New & 100% Original.",
+        "coverUrl": "https://dynamic.zacdn.com/mm9mRqNEhUV4hjlXysBFfHP2wMg=/filters:quality(70):format(webp)/https://static-id.zacdn.com/p/gucci-9364-1150005-1.jpg"
+    }
+]
